@@ -1,6 +1,6 @@
 package ui;
 
-import processing.Grid;
+import processing.*;
 import util.Constants;
 
 import javax.swing.*;
@@ -10,48 +10,65 @@ import java.awt.event.*;
 public class SimulationPanel extends JPanel implements Runnable {
     private Grid grid;
     private Thread thread;
-    private JLabel label;
 
-    private final int framerate = 60;
-    private boolean running = false;
-    private int cellsize, margin;
-    private double runTimeStart;
+    private final int framerate = 30;
+    private boolean running, gridSet;
 
     public SimulationPanel(int x, int y) {
         setPreferredSize(new Dimension(x, y));
-        this.grid = new Grid();
-        Font customFont = new Font("Source Code Pro", Font.PLAIN, 12);
-        this.label = new JLabel("Label", JLabel.CENTER);
-        label.setPreferredSize(new Dimension(x - 200, 30));
-        label.setBackground(Color.WHITE);
-        label.setFont(customFont);
-        label.setOpaque(true);
+        this.setFocusable(true);
+        this.grid = new Grid(this);
 
-        this.add(label);
+        this.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    grid.clear();
+                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    grid.scanStart();
+                    gridSet = true;
+                }
+            }
+        });
 
         this.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                label.setText("X: " + e.getX() + ", Y: " + e.getY());
+            public void mousePressed(MouseEvent e) {
+                Tile selected = grid.getTile(e.getX(), e.getY());
+                if (selected != null) {
+                    if (SwingUtilities.isLeftMouseButton(e)) {
+                        selected.becomeWall();
+                    } else if (SwingUtilities.isRightMouseButton(e)) {
+                        selected.becomeFloor();
+                    }
+                }
+            }
+        });
+
+        this.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                Tile selected = grid.getTile(e.getX(), e.getY());
+                if (selected != null) {
+                    if (SwingUtilities.isLeftMouseButton(e)) {
+                        selected.becomeWall();
+                    } else if (SwingUtilities.isRightMouseButton(e)) {
+                        selected.becomeFloor();
+                    }
+                }
             }
         });
     }
 
     public void run() {
         long start, end, sleepTime;
-        this.runTimeStart = System.currentTimeMillis();
 
         while (running) {
             start = System.currentTimeMillis();
-
-            // percolation.open();
-            // percolation.analyzeFlow();
+            if (gridSet) {
+                grid.scanStep();
+            }
             repaint();
-            // if (percolation.percolates()) {
-            //     updateLabels();
-            //     stop();
-            // }
-
             end = System.currentTimeMillis();
             // Sleep to match FPS limit
             sleepTime = (1000 / framerate) - (end - start);
@@ -65,9 +82,13 @@ public class SimulationPanel extends JPanel implements Runnable {
         }
     }
 
+    public void stopScan() {
+        gridSet = false;
+    }
+
     public synchronized void start() {
         this.thread = new Thread(this, "Pathfinder");
-        this.running = true;
+        running = true;
         thread.start(); // call run()
     }
 

@@ -1,7 +1,10 @@
 package processing;
 
 public enum TileType {
-    EMPTY,
+    START,
+    END,
     FLOOR,
-    WALL
+    WALL,
+    EXPLORE,
+    PATH
 }

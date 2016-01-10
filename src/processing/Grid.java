@@ -1,5 +1,6 @@
 package processing;
 
+import ui.SimulationPanel;
 import util.Constants;
 
 import java.awt.*;
@@ -8,8 +9,11 @@ import java.util.List;
 
 public class Grid {
     private Tile[][] grid;
+    private Pathfinder pathfinder;
+    private SimulationPanel rootPanel;
 
-    public Grid() {
+    public Grid(SimulationPanel rootPanel) {
+        this.rootPanel = rootPanel;
         this.grid = new Tile[Constants.ROWS][Constants.COLUMNS];
         build();
         setTileNeighbors();
@@ -23,6 +27,45 @@ public class Grid {
         }
     }
 
+    public Tile getTile(int x, int y) {
+        int posY = y / (Constants.TILESIZE + Constants.MARGIN);
+        int posX = x / (Constants.TILESIZE + Constants.MARGIN);
+        if (!isOutOfBounds(posX, posY)) {
+            return grid[posY][posX];
+        } else {
+            return null;
+        }
+    }
+
+    public void clear() {
+        for (Tile[] row : grid) {
+            for (Tile tile : row) {
+                tile.becomeFloor();
+            }
+        }
+        grid[2][3].becomeStart();
+        grid[25][26].becomeEnd();
+    }
+
+    public void scanStart() {
+        this.pathfinder = new Pathfinder(grid[2][3], grid[25][26], grid);
+    }
+
+    public void scanStep() {
+        if (pathfinder.step()) {
+            Stack<Point> path = pathfinder.tracePath();
+            Point n = path.pop();
+            while (!path.empty() && n != null) {
+                if (grid[n.y][n.x].isEnd()) {
+                    return;
+                }
+                grid[n.y][n.x].becomePath();
+                n = path.pop();
+            }
+            rootPanel.stopScan();
+        }
+    }
+
     private void build() {
         // Construct Tile[Constants.ROWS][Constants.COLUMNS] grid of all floors
         for (int x = 0; x < Constants.COLUMNS; x++) {
@@ -30,6 +73,8 @@ public class Grid {
                 grid[y][x] = new Tile(x, y);
             }
         }
+        grid[2][3].becomeStart();
+        grid[25][26].becomeEnd();
     }
 
     private void setTileNeighbors() {

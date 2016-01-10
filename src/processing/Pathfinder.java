@@ -3,32 +3,45 @@ package processing;
 import java.util.*;
 
 public class Pathfinder {
+    private Tile[][] grid;
+    private Tile start, end;
+    private List<Node> open;
+    private List<Tile> closed;
+    private Node startNode, endNode;
+    private Node finalNode;
+
+    public Pathfinder(Tile start, Tile end, Tile[][] grid) {
+        this.start = start;
+        this.end = end;
+        this.grid = grid;
+
+        this.open = new ArrayList<Node>();
+        this.closed = new ArrayList<Tile>();
+        this.startNode = new Node(start);
+        startNode.cost = 0;
+        this.endNode = new Node(end);
+        open.add(startNode);
+    }
 
     private static class Node {
         Node parent;
         Tile self;
         double cost;
 
-        public Node(Tile s) {
-            this.self = s;
+        public Node(Tile tile) {
+            this.self = tile;
             this.cost = Double.POSITIVE_INFINITY;
         }
     }
 
-    public Stack<Point> findPath(Tile start, Tile end, Repository repo) {
-        List<Node> open = new ArrayList<Node>();
-        List<Tile> closed = new ArrayList<Tile>();
-        Node startNode = new Node(start);
-        startNode.cost = 0;
-        Node endNode = new Node(end);
-        open.add(startNode);
-
-        while (!open.isEmpty()) {
+    public boolean step() {
+        if (!open.isEmpty()) {
             // Consider node with best score in open list
             Node a = chooseNode(open, endNode);
             // If node Cell is end Cell, trace path and finish
             if (a.self == end) {
-                return tracePath(a);
+                this.finalNode = a;
+                return true;
             } else {
                 // Don't repeat ourselves
                 open.remove(a);
@@ -36,7 +49,7 @@ public class Pathfinder {
 
                 // Consider current node's neighbors
                 for (Point point : a.self.getNeighbors()) {
-                    Tile neighbor = repo.findTile(point.x, point.y);
+                    Tile neighbor = grid[point.y][point.x];
                     // Ignore walls, water and other blocked tiles
                     if (neighbor == null || neighbor.isWall() || closed.contains(neighbor)) {
                         continue;
@@ -51,6 +64,9 @@ public class Pathfinder {
                     Node adjacent = new Node(neighbor);
                     // Otherwise add it as new unexplored node
                     if (!inOpen) {
+                        if (!neighbor.isEnd()) {
+                            grid[neighbor.y][neighbor.x].becomeExplored();
+                        }
                         open.add(adjacent);
                     }
                     // If this is a new path or shorter than current, keep it
@@ -61,7 +77,7 @@ public class Pathfinder {
                 }
             }
         }
-        return null;
+        return false;
     }
 
     private Node chooseNode(List<Node> open, Node end) {
@@ -87,10 +103,11 @@ public class Pathfinder {
         return Math.sqrt(xs + ys);
     }
 
-    private Stack<Point> tracePath(Node n) {
+    public Stack<Point> tracePath() {
         // Returns ordered stack of points along movement path
         Stack<Point> path = new Stack<Point>();
         // Chase parent of node until start point reached
+        Node n = finalNode;
         while (n.parent != null) {
             path.push(new Point(n.self.x, n.self.y));
             n = n.parent;

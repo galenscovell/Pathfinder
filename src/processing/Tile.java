@@ -12,8 +12,8 @@ public class Tile {
     private List<Point> neighborTilePoints;
 
     public Tile(int x, int y) {
-        this.x = (Constants.TILESIZE + Constants.MARGIN) * x + Constants.MARGIN;
-        this.y = (Constants.TILESIZE + Constants.MARGIN) * y + Constants.MARGIN;
+        this.x = x;
+        this.y = y;
         this.type = TileType.FLOOR;
         this.color = Constants.FLOOR_COLOR;
     }
@@ -23,8 +23,10 @@ public class Tile {
     }
 
     public void becomeFloor() {
-        type = TileType.FLOOR;
-        this.color = Constants.FLOOR_COLOR;
+        if (type != TileType.FLOOR) {
+            type = TileType.FLOOR;
+            this.color = Constants.FLOOR_COLOR;
+        }
     }
 
     public boolean isWall() {
@@ -32,8 +34,54 @@ public class Tile {
     }
 
     public void becomeWall() {
-        type = TileType.WALL;
-        this.color = Constants.WALL_COLOR;
+        if (type != TileType.WALL) {
+            type = TileType.WALL;
+            this.color = Constants.WALL_COLOR;
+        }
+    }
+
+    public boolean isStart() {
+        return type == TileType.START;
+    }
+
+    public void becomeStart() {
+        if (type != TileType.START) {
+            type = TileType.START;
+            this.color = Constants.ENDPOINTS;
+        }
+    }
+
+    public boolean isEnd() {
+        return type == TileType.END;
+    }
+
+    public void becomeEnd() {
+        if (type != TileType.END) {
+            type = TileType.END;
+            this.color = Constants.ENDPOINTS;
+        }
+    }
+
+    public boolean isExplored() {
+        return type == TileType.EXPLORE;
+    }
+
+    public void becomeExplored() {
+        if (type != TileType.EXPLORE) {
+            type = TileType.EXPLORE;
+            this.color = Constants.EXPLORE_COLOR_1;
+        }
+    }
+
+    public boolean isPath() {
+        return type == TileType.PATH;
+    }
+
+    public void becomePath() {
+        if (type != TileType.PATH) {
+            type = TileType.PATH;
+            this.color = Constants.PATH_COLOR;
+        }
     }
 
     public void setNeighbors(List<Point> points) {
@@ -46,6 +94,11 @@ public class Tile {
 
     public void draw(Graphics2D gfx) {
         gfx.setColor(color);
-        gfx.fillRect(x, y, Constants.TILESIZE, Constants.TILESIZE);
+        gfx.fillRect(
+                (Constants.TILESIZE + Constants.MARGIN) * x + Constants.MARGIN,
+                (Constants.TILESIZE + Constants.MARGIN) * y + Constants.MARGIN,
+                Constants.TILESIZE,
+                Constants.TILESIZE
+        );
     }
 }

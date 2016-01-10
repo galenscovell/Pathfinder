@@ -18,4 +18,5 @@ public class Constants {
     public static Color EXPLORE_COLOR_1 = new Color(0xf1c40f);
     public static Color EXPLORE_COLOR_2 = new Color(0xf39c12);
     public static Color PATH_COLOR = new Color(0xecf0f1);
+    public static Color ENDPOINTS = new Color(0x16a085);
 }
