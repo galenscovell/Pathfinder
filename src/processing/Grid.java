@@ -8,12 +8,9 @@ import java.util.List;
 
 public class Grid {
     private Tile[][] grid;
-    private Color closed = new Color(0x2c3e50);
-    private Color open = new Color(0x34495e);
-    private Color filled = new Color(0x2980b9);
 
     public Grid() {
-        this.grid = new Tile[Constants.TILES_Y][Constants.TILES_X];
+        this.grid = new Tile[Constants.ROWS][Constants.COLUMNS];
         build();
         setTileNeighbors();
     }
@@ -21,15 +18,15 @@ public class Grid {
     public void draw(Graphics2D gfx) {
         for (Tile[] row : grid) {
             for (Tile tile : row) {
-                tile.draw(gfx, filled);
+                tile.draw(gfx);
             }
         }
     }
 
     private void build() {
-        // Construct Tile[MAPSIZE][MAPSIZE] grid of all walls
-        for (int x = 0; x < Constants.TILES_X; x++) {
-            for (int y = 0; y < Constants.TILES_Y; y++) {
+        // Construct Tile[Constants.ROWS][Constants.COLUMNS] grid of all floors
+        for (int x = 0; x < Constants.COLUMNS; x++) {
+            for (int y = 0; y < Constants.ROWS; y++) {
                 grid[y][x] = new Tile(x, y);
             }
         }
@@ -54,15 +51,15 @@ public class Grid {
     }
 
     private boolean isOutOfBounds(int x, int y) {
-        return (x < 0 || y < 0 || x >= Constants.TILES_X || y >= Constants.TILES_Y);
+        return (x < 0 || y < 0 || x >= Constants.COLUMNS || y >= Constants.ROWS);
     }
 
     public Map<Integer, Tile> getTiles() {
         // Translate Tile[][] grid to HashMap
         Map<Integer, Tile> tiles = new HashMap<Integer, Tile>();
-        for (int x = 0; x < Constants.TILES_X; x++) {
-            for (int y = 0; y < Constants.TILES_Y; y++) {
-                int key = x * Constants.TILES_X + y;
+        for (int x = 0; x < Constants.COLUMNS; x++) {
+            for (int y = 0; y < Constants.ROWS; y++) {
+                int key = x * Constants.COLUMNS + y;
                 tiles.put(key, grid[y][x]);
             }
         }

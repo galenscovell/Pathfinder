@@ -7,21 +7,15 @@ import java.util.List;
 
 public class Tile {
     public final int x, y;
+    private Color color;
     private TileType type;
     private List<Point> neighborTilePoints;
 
     public Tile(int x, int y) {
-        this.x = x * (Constants.TILESIZE + Constants.MARGIN);
-        this.y = y * (Constants.TILESIZE + Constants.MARGIN);
-        this.type = TileType.EMPTY;
-    }
-
-    public boolean isEmpty() {
-        return type == TileType.EMPTY;
-    }
-
-    public void becomeEmpty() {
-        type = TileType.EMPTY;
+        this.x = (Constants.TILESIZE + Constants.MARGIN) * x + Constants.MARGIN;
+        this.y = (Constants.TILESIZE + Constants.MARGIN) * y + Constants.MARGIN;
+        this.type = TileType.FLOOR;
+        this.color = Constants.FLOOR_COLOR;
     }
 
     public boolean isFloor() {
@@ -30,6 +24,7 @@ public class Tile {
 
     public void becomeFloor() {
         type = TileType.FLOOR;
+        this.color = Constants.FLOOR_COLOR;
     }
 
     public boolean isWall() {
@@ -38,6 +33,7 @@ public class Tile {
 
     public void becomeWall() {
         type = TileType.WALL;
+        this.color = Constants.WALL_COLOR;
     }
 
     public void setNeighbors(List<Point> points) {
@@ -48,7 +44,7 @@ public class Tile {
         return neighborTilePoints;
     }
 
-    public void draw(Graphics2D gfx, Color color) {
+    public void draw(Graphics2D gfx) {
         gfx.setColor(color);
         gfx.fillRect(x, y, Constants.TILESIZE, Constants.TILESIZE);
     }

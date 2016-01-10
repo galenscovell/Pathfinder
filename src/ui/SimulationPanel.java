@@ -1,13 +1,16 @@
 package ui;
 
 import processing.Grid;
+import util.Constants;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class SimulationPanel extends JPanel implements Runnable {
     private Grid grid;
     private Thread thread;
+    private JLabel label;
 
     private final int framerate = 60;
     private boolean running = false;
@@ -17,6 +20,21 @@ public class SimulationPanel extends JPanel implements Runnable {
     public SimulationPanel(int x, int y) {
         setPreferredSize(new Dimension(x, y));
         this.grid = new Grid();
+        Font customFont = new Font("Source Code Pro", Font.PLAIN, 12);
+        this.label = new JLabel("Label", JLabel.CENTER);
+        label.setPreferredSize(new Dimension(x - 200, 30));
+        label.setBackground(Color.WHITE);
+        label.setFont(customFont);
+        label.setOpaque(true);
+
+        this.add(label);
+
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                label.setText("X: " + e.getX() + ", Y: " + e.getY());
+            }
+        });
     }
 
     public void run() {
@@ -68,7 +86,7 @@ public class SimulationPanel extends JPanel implements Runnable {
         Graphics2D gfx = (Graphics2D) g;
 
         // Clear screen
-        gfx.setColor(new Color(0x2c3e50));
+        gfx.setColor(Constants.BACKGROUND_COLOR);
         gfx.fillRect(0, 0, getWidth(), getHeight());
         // Render next frame
         grid.draw(gfx);

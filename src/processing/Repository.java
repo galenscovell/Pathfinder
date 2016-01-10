@@ -16,6 +16,6 @@ public class Repository {
     }
 
     public Tile findTile(int x, int y) {
-        return tiles.get(x * Constants.TILES_X + y);
+        return tiles.get(x * Constants.COLUMNS + y);
     }
 }
