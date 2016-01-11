@@ -11,6 +11,7 @@ public class Grid {
     private Tile[][] grid;
     private Pathfinder pathfinder;
     private SimulationPanel rootPanel;
+    private Tile selectedEnd;
 
     public Grid(SimulationPanel rootPanel) {
         this.rootPanel = rootPanel;
@@ -37,18 +38,41 @@ public class Grid {
         }
     }
 
-    public void clear() {
+    public void selectEndTile(Tile tile) {
+        if (selectedEnd != null) {
+            selectedEnd.becomeFloor();
+        }
+        selectedEnd = tile;
+        selectedEnd.becomeEnd();
+    }
+
+    public void clearAll() {
         for (Tile[] row : grid) {
             for (Tile tile : row) {
                 tile.becomeFloor();
             }
         }
-        grid[2][3].becomeStart();
-        grid[25][26].becomeEnd();
+        selectedEnd = null;
+        grid[29][3].becomeStart();
     }
 
-    public void scanStart() {
-        this.pathfinder = new Pathfinder(grid[2][3], grid[25][26], grid);
+    public void clearScan() {
+        for (Tile[] row : grid) {
+            for (Tile tile : row) {
+                if (tile.isExplored() || tile.isPath()) {
+                    tile.becomeFloor();
+                }
+            }
+        }
+    }
+
+    public boolean scanStart() {
+        if (selectedEnd != null) {
+            this.pathfinder = new Pathfinder(grid[29][3], selectedEnd, grid);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void scanStep() {
@@ -73,8 +97,7 @@ public class Grid {
                 grid[y][x] = new Tile(x, y);
             }
         }
-        grid[2][3].becomeStart();
-        grid[25][26].becomeEnd();
+        grid[29][3].becomeStart();
     }
 
     private void setTileNeighbors() {

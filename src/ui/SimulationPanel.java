@@ -11,7 +11,7 @@ public class SimulationPanel extends JPanel implements Runnable {
     private Grid grid;
     private Thread thread;
 
-    private final int framerate = 30;
+    private final int framerate = 60;
     private boolean running, gridSet;
 
     public SimulationPanel(int x, int y) {
@@ -22,11 +22,15 @@ public class SimulationPanel extends JPanel implements Runnable {
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    grid.clear();
-                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    grid.scanStart();
-                    gridSet = true;
+                if (!gridSet) {
+                    if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                        grid.clearAll();
+                    } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        grid.clearScan();
+                        if (grid.scanStart()) {
+                            gridSet = true;
+                        }
+                    }
                 }
             }
         });
@@ -34,12 +38,15 @@ public class SimulationPanel extends JPanel implements Runnable {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                Tile selected = grid.getTile(e.getX(), e.getY());
-                if (selected != null) {
-                    if (SwingUtilities.isLeftMouseButton(e)) {
-                        selected.becomeWall();
-                    } else if (SwingUtilities.isRightMouseButton(e)) {
-                        selected.becomeFloor();
+                if (!gridSet) {
+                    Tile selected = grid.getTile(e.getX(), e.getY());
+                    if (selected != null) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            selected.becomeWall();
+                        } else if (SwingUtilities.isRightMouseButton(e)) {
+                            grid.clearScan();
+                            grid.selectEndTile(selected);
+                        }
                     }
                 }
             }
@@ -48,12 +55,14 @@ public class SimulationPanel extends JPanel implements Runnable {
         this.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                Tile selected = grid.getTile(e.getX(), e.getY());
-                if (selected != null) {
-                    if (SwingUtilities.isLeftMouseButton(e)) {
-                        selected.becomeWall();
-                    } else if (SwingUtilities.isRightMouseButton(e)) {
-                        selected.becomeFloor();
+                if (!gridSet) {
+                    Tile selected = grid.getTile(e.getX(), e.getY());
+                    if (selected != null) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            selected.becomeWall();
+                        } else if (SwingUtilities.isRightMouseButton(e)) {
+                            selected.becomeFloor();
+                        }
                     }
                 }
             }
