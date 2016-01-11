@@ -6,34 +6,22 @@ import util.Constants;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 public class SimulationPanel extends JPanel implements Runnable {
     private Grid grid;
     private Thread thread;
+    private SettingsPanel settingsPanel;
 
-    private final int framerate = 60;
-    private boolean running, gridSet;
+    private final int framerate = 120;
+    private boolean running, gridSet, tracing;
+    private ArrayList<Coordinate> pathLine;
 
     public SimulationPanel(int x, int y) {
         setPreferredSize(new Dimension(x, y));
         this.setFocusable(true);
+        this.settingsPanel = new SettingsPanel(this, 120, 110);
         this.grid = new Grid(this);
-
-        this.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (!gridSet) {
-                    if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                        grid.clearAll();
-                    } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                        grid.clearScan();
-                        if (grid.scanStart()) {
-                            gridSet = true;
-                        }
-                    }
-                }
-            }
-        });
 
         this.addMouseListener(new MouseAdapter() {
             @Override
@@ -57,16 +45,31 @@ public class SimulationPanel extends JPanel implements Runnable {
             public void mouseDragged(MouseEvent e) {
                 if (!gridSet) {
                     Tile selected = grid.getTile(e.getX(), e.getY());
-                    if (selected != null) {
-                        if (SwingUtilities.isLeftMouseButton(e)) {
+                    if (selected != null && SwingUtilities.isLeftMouseButton(e)) {
                             selected.becomeWall();
-                        } else if (SwingUtilities.isRightMouseButton(e)) {
-                            selected.becomeFloor();
-                        }
                     }
                 }
             }
         });
+
+        this.add(settingsPanel);
+    }
+
+    public void startScan(String mode) {
+        if (!gridSet) {
+            grid.clearScan();
+            tracing = false;
+            if (grid.scanStart(mode)) {
+                gridSet = true;
+            }
+        }
+    }
+
+    public void clear() {
+        if (!gridSet) {
+            grid.clearAll();
+            tracing = false;
+        }
     }
 
     public void run() {
@@ -91,8 +94,13 @@ public class SimulationPanel extends JPanel implements Runnable {
         }
     }
 
-    public void stopScan() {
+    public void stopScan(Stack<Coordinate> path) {
         gridSet = false;
+        tracing = true;
+        this.pathLine = new ArrayList<Coordinate>();
+        while (!path.empty()) {
+            pathLine.add(path.pop());
+        }
     }
 
     public synchronized void start() {
@@ -114,12 +122,29 @@ public class SimulationPanel extends JPanel implements Runnable {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D gfx = (Graphics2D) g;
+        gfx.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON
+        );
 
         // Clear screen
         gfx.setColor(Constants.BACKGROUND_COLOR);
         gfx.fillRect(0, 0, getWidth(), getHeight());
         // Render next frame
         grid.draw(gfx);
+        // Trace path line
+        if (tracing) {
+            gfx.setColor(Constants.PATH_COLOR);
+            gfx.setStroke(new BasicStroke(2));
+            for (int i = 1; i < pathLine.size(); i++) {
+                Coordinate p = pathLine.get(i - 1);
+                Coordinate n = pathLine.get(i);
+                gfx.drawLine(
+                        (Constants.TILESIZE + Constants.MARGIN) * p.x + (Constants.TILESIZE / 2) + Constants.MARGIN,
+                        (Constants.TILESIZE + Constants.MARGIN) * p.y + (Constants.TILESIZE / 2) + Constants.MARGIN,
+                        (Constants.TILESIZE + Constants.MARGIN) * n.x + (Constants.TILESIZE / 2) + Constants.MARGIN,
+                        (Constants.TILESIZE + Constants.MARGIN) * n.y + (Constants.TILESIZE / 2) + Constants.MARGIN);
+            }
+        }
     }
-
 }

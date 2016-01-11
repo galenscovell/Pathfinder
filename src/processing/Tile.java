@@ -9,7 +9,7 @@ public class Tile {
     public final int x, y;
     private Color color;
     private TileType type;
-    private List<Point> neighborTilePoints;
+    private List<Coordinate> neighborTileCoordinates;
 
     public Tile(int x, int y) {
         this.x = x;
@@ -73,32 +73,21 @@ public class Tile {
         }
     }
 
-    public boolean isPath() {
-        return type == TileType.PATH;
+    public void setNeighbors(List<Coordinate> coordinates) {
+        this.neighborTileCoordinates = coordinates;
     }
 
-    public void becomePath() {
-        if (type != TileType.PATH) {
-            type = TileType.PATH;
-            this.color = Constants.PATH_COLOR;
-        }
-    }
-
-    public void setNeighbors(List<Point> points) {
-        this.neighborTilePoints = points;
-    }
-
-    public List<Point> getNeighbors() {
-        return neighborTilePoints;
+    public List<Coordinate> getNeighbors() {
+        return neighborTileCoordinates;
     }
 
     public void draw(Graphics2D gfx) {
         gfx.setColor(color);
         gfx.fillRect(
-                (Constants.TILESIZE + Constants.MARGIN) * x + Constants.MARGIN,
-                (Constants.TILESIZE + Constants.MARGIN) * y + Constants.MARGIN,
-                Constants.TILESIZE,
-                Constants.TILESIZE
+            (Constants.TILESIZE + Constants.MARGIN) * x + Constants.MARGIN,
+            (Constants.TILESIZE + Constants.MARGIN) * y + Constants.MARGIN,
+            Constants.TILESIZE,
+            Constants.TILESIZE
         );
     }
 }

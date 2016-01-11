@@ -9,11 +9,13 @@ public class Pathfinder {
     private List<Tile> closed;
     private Node startNode, endNode;
     private Node finalNode;
+    private final String mode;
 
-    public Pathfinder(Tile start, Tile end, Tile[][] grid) {
+    public Pathfinder(Tile start, Tile end, Tile[][] grid, String mode) {
         this.start = start;
         this.end = end;
         this.grid = grid;
+        this.mode = mode;
 
         this.open = new ArrayList<Node>();
         this.closed = new ArrayList<Tile>();
@@ -48,8 +50,8 @@ public class Pathfinder {
                 closed.add(a.self);
 
                 // Consider current node's neighbors
-                for (Point point : a.self.getNeighbors()) {
-                    Tile neighbor = grid[point.y][point.x];
+                for (Coordinate coordinate : a.self.getNeighbors()) {
+                    Tile neighbor = grid[coordinate.y][coordinate.x];
                     // Ignore walls, water and other blocked tiles
                     if (neighbor == null || neighbor.isWall() || closed.contains(neighbor)) {
                         continue;
@@ -96,20 +98,39 @@ public class Pathfinder {
         return bestNode;
     }
 
-    private double estimateDistance(Node n, Node end) {
-        // Euclidean Manhattan distance between nodes
+    private double chebyshev(Node n, Node end) {
+        return Math.max(Math.abs(n.self.x - end.self.x), Math.abs(n.self.y - end.self.y));
+    }
+
+    private double manhattan(Node n, Node end) {
+        return Math.abs(n.self.x - end.self.x) + Math.abs(n.self.y - end.self.y);
+    }
+
+    private double euclidean(Node n, Node end) {
         double xs = (n.self.x - end.self.x) * (n.self.x - end.self.x);
         double ys = (n.self.y - end.self.y) * (n.self.y - end.self.y);
         return Math.sqrt(xs + ys);
     }
 
-    public Stack<Point> tracePath() {
+    private double estimateDistance(Node n, Node end) {
+        if (mode == "manhattan") {
+            return manhattan(n, end);
+        } else if (mode == "euclidean") {
+            return euclidean(n, end);
+        } else {
+            return chebyshev(n, end);
+        }
+    }
+
+    public Stack<Coordinate> tracePath() {
         // Returns ordered stack of points along movement path
-        Stack<Point> path = new Stack<Point>();
+        Stack<Coordinate> path = new Stack<Coordinate>();
         // Chase parent of node until start point reached
         Node n = finalNode;
         while (n.parent != null) {
-            path.push(new Point(n.self.x, n.self.y));
+            if (!grid[n.self.y][n.self.x].isEnd()) {
+                path.push(new Coordinate(n.self.x, n.self.y));
+            }
             n = n.parent;
         }
         return path;
