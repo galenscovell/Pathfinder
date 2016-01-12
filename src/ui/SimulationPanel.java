@@ -16,11 +16,13 @@ public class SimulationPanel extends JPanel implements Runnable {
     private final int framerate = 120;
     private boolean running, gridSet, tracing;
     private ArrayList<Coordinate> pathLine;
+    private double pathfindStart, totalruntime;
 
     public SimulationPanel(int x, int y) {
         setPreferredSize(new Dimension(x, y));
+        this.setLayout(new BorderLayout());
         this.setFocusable(true);
-        this.settingsPanel = new SettingsPanel(this, 120, 110);
+        this.settingsPanel = new SettingsPanel(this, Constants.SCREEN_X, 40);
         this.grid = new Grid(this);
 
         this.addMouseListener(new MouseAdapter() {
@@ -52,10 +54,11 @@ public class SimulationPanel extends JPanel implements Runnable {
             }
         });
 
-        this.add(settingsPanel);
+        this.add(settingsPanel, BorderLayout.SOUTH);
     }
 
     public void startScan(String mode) {
+        pathfindStart = System.currentTimeMillis();
         if (!gridSet) {
             grid.clearScan();
             tracing = false;
@@ -95,6 +98,8 @@ public class SimulationPanel extends JPanel implements Runnable {
     }
 
     public void stopScan(Stack<Coordinate> path) {
+        totalruntime = (System.currentTimeMillis() - pathfindStart) / 1000;
+        settingsPanel.runtimeLabel.setText("Runtime: " + totalruntime + "s");
         gridSet = false;
         tracing = true;
         this.pathLine = new ArrayList<Coordinate>();

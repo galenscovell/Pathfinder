@@ -10,12 +10,14 @@ public class Tile {
     private Color color;
     private TileType type;
     private List<Coordinate> neighborTileCoordinates;
+    private int frame;
 
     public Tile(int x, int y) {
         this.x = x;
         this.y = y;
         this.type = TileType.FLOOR;
         this.color = Constants.FLOOR_COLOR;
+        this.frame = 0;
     }
 
     public boolean isFloor() {
@@ -67,9 +69,10 @@ public class Tile {
     }
 
     public void becomeExplored() {
+        frame = 60;
         if (type != TileType.EXPLORE) {
             type = TileType.EXPLORE;
-            this.color = Constants.EXPLORE_COLOR_1;
+            this.color = Constants.EXPLORE_COLOR_0;
         }
     }
 
@@ -82,6 +85,20 @@ public class Tile {
     }
 
     public void draw(Graphics2D gfx) {
+        if (frame > 0) {
+            frame--;
+            if (frame == 50) {
+                color = Constants.EXPLORE_COLOR_1;
+            } else if (frame == 40) {
+                color = Constants.EXPLORE_COLOR_2;
+            } else if (frame == 30) {
+                color = Constants.EXPLORE_COLOR_3;
+            } else if (frame == 20) {
+                color = Constants.EXPLORE_COLOR_4;
+            } else if (frame == 10) {
+                color = Constants.EXPLORE_COLOR_5;
+            }
+        }
         gfx.setColor(color);
         gfx.fillRect(
             (Constants.TILESIZE + Constants.MARGIN) * x + Constants.MARGIN,

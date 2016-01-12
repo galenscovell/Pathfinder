@@ -6,15 +6,18 @@ import java.awt.event.*;
 
 public class SettingsPanel extends JPanel implements ActionListener {
     private SimulationPanel rootPanel;
-    private JLabel label;
+    public JLabel runtimeLabel;
     private JButton manhattanButton, euclideanButton, chebyshevButton, clearButton;
 
     public SettingsPanel(SimulationPanel rootPanel, int x, int y) {
         this.rootPanel = rootPanel;
         setPreferredSize(new Dimension(x, y));
 
-        Font smallFont = new Font("Source Code Pro", Font.PLAIN, 12);
-        Dimension buttonSize = new Dimension(100, 20);
+        Font smallFont = new Font("Open Sans", Font.PLAIN, 12);
+        Dimension buttonSize = new Dimension(100, 30);
+
+        this.runtimeLabel = new JLabel("Runtime: ");
+        runtimeLabel.setPreferredSize(new Dimension(120, 30));
 
         this.manhattanButton = new JButton("Manhattan");
         manhattanButton.setFocusPainted(false);
@@ -48,6 +51,7 @@ public class SettingsPanel extends JPanel implements ActionListener {
         clearButton.setPreferredSize(buttonSize);
         clearButton.setFont(smallFont);
 
+        this.add(runtimeLabel);
         this.add(manhattanButton);
         this.add(euclideanButton);
         this.add(chebyshevButton);
