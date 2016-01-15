@@ -3,27 +3,36 @@ package processing;
 public class Node {
     private Node parent;
     private Tile tile;
-    private double cost;
+    private double costFromStart, totalCost;
 
     public Node(Tile tile) {
         this.tile = tile;
-        this.cost = Double.POSITIVE_INFINITY;
     }
 
-    public Tile getTile() {
-        return tile;
+
+    public void setCostFromStart(double val) {
+        this.costFromStart = val;
     }
 
-    public void setCost(double cost) {
-        this.cost = cost;
+    public void setTotalCost(double val) {
+        this.totalCost = val;
     }
 
     public void setParent(Node parent) {
         this.parent = parent;
     }
 
-    public double getCost() {
-        return cost;
+
+    public double getCostFromStart() {
+        return costFromStart;
+    }
+
+    public double getTotalCost() {
+        return totalCost;
+    }
+
+    public Tile getTile() {
+        return tile;
     }
 
     public Node getParent() {

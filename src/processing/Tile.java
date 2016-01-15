@@ -85,7 +85,7 @@ public class Tile {
     }
 
     public void draw(Graphics2D gfx) {
-        if (frame > 0) {
+        if (isExplored() && frame > 0) {
             frame--;
             if (frame == 50) {
                 color = Constants.EXPLORE_COLOR_1;

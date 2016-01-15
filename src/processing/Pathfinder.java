@@ -14,8 +14,10 @@ public class Pathfinder {
         this.openList = new ArrayList<Node>();
         this.closedList = new ArrayList<Node>();
         this.startNode = new Node(startTile);
-        startNode.setCost(0);
         this.endNode = new Node(endTile);
+
+        startNode.setCostFromStart(0);
+        startNode.setTotalCost(startNode.getCostFromStart() + heuristic(startNode, endNode));
         openList.add(startNode);
     }
 
@@ -37,18 +39,21 @@ public class Pathfinder {
                 if (neighborTile != null && !neighborTile.isWall()) {
                     Node neighborNode = new Node(neighborTile);
 
-                    if (inList(neighborTile, openList) || inList(neighborTile, closedList)) {
-                        continue;
-                    } else {
-                        if (!neighborTile.isEnd()) {
-                            grid[neighborTile.y][neighborTile.x].becomeExplored();
+                    if (!inList(neighborTile, closedList)) {
+                        neighborNode.setTotalCost(current.getCostFromStart() + heuristic(neighborNode, endNode));
+
+                        if (!inList(neighborTile, openList)) {
+                            if (!neighborTile.isEnd()) {
+                                grid[neighborTile.y][neighborTile.x].becomeExplored();
+                            }
+                            neighborNode.setParent(current);
+                            openList.add(neighborNode);
+                        } else {
+                            if (neighborNode.getCostFromStart() < current.getCostFromStart()) {
+                                neighborNode.setCostFromStart(neighborNode.getCostFromStart());
+                                neighborNode.setParent(neighborNode.getParent());
+                            }
                         }
-                        openList.add(neighborNode);
-                    }
-                    // If this is a new path or shorter than current, keep it
-                    if (current.getCost() + 1 < neighborNode.getCost()) {
-                        neighborNode.setParent(current);
-                        neighborNode.setCost(current.getCost() + 1);
                     }
                 }
             }
@@ -70,38 +75,25 @@ public class Pathfinder {
         Node bestNode = null;
 
         for (Node node : openList) {
-            double costFromStart = node.getCost();
-            double costToEnd = estimateDistance(node, endNode);
-            double totalCoat = costFromStart + costToEnd;
-            if (minCost > totalCoat) {
-                minCost = totalCoat;
+            double totalCost = node.getCostFromStart() + heuristic(node, endNode);
+            if (minCost > totalCost) {
+                minCost = totalCost;
                 bestNode = node;
             }
         }
         return bestNode;
     }
 
-    private double chebyshev(Node start, Node end) {
-        return Math.max(Math.abs(start.getTile().x - end.getTile().x), Math.abs(start.getTile().y - end.getTile().y));
-    }
+    private double heuristic(Node start, Node end) {
+        double dx = start.getTile().x - end.getTile().x;
+        double dy = start.getTile().y - end.getTile().y;
 
-    private double manhattan(Node start, Node end) {
-        return Math.abs(start.getTile().x - end.getTile().x) + Math.abs(start.getTile().y - end.getTile().y);
-    }
-
-    private double euclidean(Node start, Node end) {
-        double xs = (start.getTile().x - end.getTile().x) * (start.getTile().x - end.getTile().x);
-        double ys = (start.getTile().y - end.getTile().y) * (start.getTile().y - end.getTile().y);
-        return Math.sqrt(xs + ys);
-    }
-
-    private double estimateDistance(Node start, Node end) {
         if (mode == "manhattan") {
-            return manhattan(start, end);
+            return manhattan(dx, dy);
         } else if (mode == "euclidean") {
-            return euclidean(start, end);
+            return euclidean(dx, dy);
         } else {
-            return chebyshev(start, end);
+            return chebyshev(dx, dy);
         }
     }
 
@@ -117,6 +109,19 @@ public class Pathfinder {
             node = node.getParent();
         }
         return path;
+    }
+
+
+    public double chebyshev(double dx, double dy) {
+        return Math.max(Math.abs(dx), Math.abs(dy));
+    }
+
+    public double manhattan(double dx, double dy) {
+        return Math.abs(dx) + Math.abs(dy);
+    }
+
+    public double euclidean(double dx, double dy) {
+        return Math.sqrt(dx * dx + dy * dy);
     }
 }
 

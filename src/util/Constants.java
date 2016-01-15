@@ -5,11 +5,11 @@ import java.awt.*;
 public class Constants {
     private Constants() {}
 
-    public static int SCREEN_X = 609;
+    public static int SCREEN_X = 638;
     public static int SCREEN_Y = 665;
     public static int TILESIZE = 14;
     public static int MARGIN = 1;
-    public static int COLUMNS = 40;
+    public static int COLUMNS = 42;
     public static int ROWS = 40;
 
     public static Color BACKGROUND_COLOR = new Color(0x2c3e50);

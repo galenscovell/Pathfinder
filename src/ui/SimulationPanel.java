@@ -35,6 +35,7 @@ public class SimulationPanel extends JPanel implements Runnable {
                             selected.becomeWall();
                         } else if (SwingUtilities.isRightMouseButton(e)) {
                             grid.clearScan();
+                            tracing = false;
                             grid.selectEndTile(selected);
                         }
                     }
