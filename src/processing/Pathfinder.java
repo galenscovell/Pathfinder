@@ -36,6 +36,16 @@ public class Pathfinder {
             for (Coordinate coordinate : current.getTile().getNeighbors()) {
                 Tile neighborTile = grid[coordinate.y][coordinate.x];
 
+                if (mode != "euclidean") {
+                    Tile currentTile = current.getTile();
+                    int diffX = Math.abs(currentTile.x - neighborTile.x);
+                    int diffY = Math.abs(currentTile.y - neighborTile.y);
+
+                    if (diffX > 0 && diffY > 0) {
+                        continue;
+                    }
+                }
+
                 if (neighborTile != null && !neighborTile.isWall()) {
                     Node neighborNode = new Node(neighborTile);
 
